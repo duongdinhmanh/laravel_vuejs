@@ -24,35 +24,40 @@
                     <td>{{ post.content }}</td>
                     <td>{{ post.created_at }}</td>
                     <td>
-                        <button type="button" class="btn btn-success" @click="editPost(post.id)">Edit</button>
+                        <button type="button" class="btn btn-success" @click="editPostId(post.id)">
+                                Edit
+                        </button>
                     </td>
                 </tr>
             </tbody>
         </table>
-       <!--  Create-post -->
-        <div class="modal fade" id="post">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Modal title</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="">Title</label>
-                            <input type="text" class="form-control" id="" placeholder="Input field" v-model="title">
+        
+            <div class="modal hide fade edit-post" tabindex="-1" role="dialog" id="post">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Modal title</h4>
                         </div>
-                        <div class="form-group">
-                            <label for="">Content</label>
-                            <input type="text" class="form-control" id="" placeholder="Input field" v-model="content">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Title</label>
+                                <input type="text" class="form-control" id="" placeholder="Input field" v-model="data.title">
+                            </div>
+                            <div class="form-group">
+                                <label for="">Content</label>
+                                <input type="text" class="form-control" id="" placeholder="Input field" v-model="data.content">
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" @click="savePost" data-dismiss="modal">Submit</button>
+                        <div class="modal-footer" v-if="isId === true">
+                            <button type="submit" class="btn btn-primary" @click="saveEditPost" data-dismiss="modal">Submit</button>
+                        </div>
+                        <div class="modal-footer" v-else>
+                            <button type="submit" class="btn btn-primary" @click="savePost" data-dismiss="modal">Submit</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+      
     </div>
 </template>
 
@@ -61,11 +66,15 @@ export default {
 
   name: 'list-post',
 
-  data () {
+    data () {
         return {
             posts: [],
-            title:'',
-            content:''
+            data: {
+                title:'',
+                content:'',
+            },
+            isId: false,
+            idPost: null,
         }
     },
     methods : {
@@ -79,24 +88,31 @@ export default {
             window.axios.post(route('post.store',{
                 'title': this.title,
                 'content': this.content
-            })).then(res => { 
-                self.title = res.data.title;
-                self.content = res.data.content;
+            })).then(res => {
+                this.getAllPost();
             })
         },
-        editPost (id) {
+        editPostId (id) {
+            this.idPost = id;
+            window.$('#post').modal('show');
             let self = this;
-                $('#post').modal('show');
-                // window.axios.post(route('post.edit',{
-                //     'id': id,chmo
-                // })).then(res => { 
-                //     self.title = res.data.title;
-                //     self.content = res.data.content;
-                // })
-        }
-    },
-    created () {
-
+            window.axios.get(route('post.edit',{'id': id
+            })).then(res => {
+               self.data = res.data;
+               self.isId = true
+            })
+        },
+        saveEditPost () {
+            const headers = {
+                'Content-Type': 'multipart/form-data'
+            };
+            let param = this.data;
+            let self = this;
+            window.axios.put(route('post.update', {id: this.idPost }),{param}).then(res => {
+                window.$('#post').modal('hide');
+                self.getAllPost();
+            })
+        },
     },
     mounted () {
         this.getAllPost();

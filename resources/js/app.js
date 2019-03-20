@@ -28,6 +28,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 Vue.component('post-components', require('./components/post/index.vue').default);
+// Vue.component('edit-post', require('./components/post/edit-post.vue').default);
 
 const VueApp = new Vue({
     el: '#vue-app'

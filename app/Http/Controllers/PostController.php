@@ -72,9 +72,9 @@ class PostController extends Controller
     {
         if ($request->ajax()) {
             $data = Post::find($id);
-            
             return response($data, 200);
         }
+        // return view('post.edit');
     }
 
     /**
@@ -86,7 +86,9 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = Post::findOrFail($id);
+        $data->update($request->param);
+       return response()->json('successfully updated');
     }
 
     /**
